@@ -644,7 +644,7 @@ with tab1:
 
         st.markdown(f"#### ตารางเรียน ชั้น {selected_class}")
         st.dataframe(
-            df.style.applymap(color_cell),
+            df.style.map(color_cell),
             use_container_width=True,
             height=360,
         )
@@ -704,7 +704,7 @@ with tab2:
             )
 
         st.dataframe(
-            df.style.applymap(color_teacher),
+            df.style.map(color_teacher),
             use_container_width=True,
             height=360,
         )
@@ -800,7 +800,7 @@ with tab4:
             return ""
 
         st.dataframe(
-            summary_df.style.applymap(highlight_status, subset=["สถานะ"]),
+            summary_df.style.map(highlight_status, subset=["สถานะ"]),
             use_container_width=True,
             hide_index=True,
         )
