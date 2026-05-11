@@ -205,23 +205,21 @@ def generate_timetable(classes, subjects, teachers, teacher_subjects):
     )
 
     for cls in classes:
-        # ล็อกคาบพิเศษ
-        wed_teacher = 1
-        fri_teacher = 6
+        # ล็อกคาบพิเศษ (กิจกรรมรวมครูทุกคน)
+        wed_teacher = 0
+        fri_teacher = 0
 
-        # พุธคาบสุดท้าย = ลูกเสือ
+        # พุธคาบสุดท้าย = ลูกเสือ (ครูทุกคน)
         schedule[cls]["พุธ"][6] = {
             "subject": "ลูกเสือ เนตรนารี",
             "teacher_id": wed_teacher,
         }
-        teacher_busy[wed_teacher]["พุธ"][6] = True
 
-        # ศุกร์คาบสุดท้าย = สวดมนต์
+        # ศุกร์คาบสุดท้าย = สวดมนต์ (ครูทุกคน)
         schedule[cls]["ศุกร์"][6] = {
             "subject": "สวดมนต์",
             "teacher_id": fri_teacher,
         }
-        teacher_busy[fri_teacher]["ศุกร์"][6] = True
 
     for task in tasks:
         cls = task["class"]
@@ -267,6 +265,40 @@ def generate_timetable(classes, subjects, teachers, teacher_subjects):
             )
 
     return schedule, conflicts
+
+
+def calculate_teacher_workload(schedule, teachers):
+    """คำนวณภาระงานครู"""
+
+    workload = []
+
+    for teacher in teachers:
+        total_periods = 0
+
+        for cls in schedule:
+            for day in DAYS:
+                for period in PERIODS:
+                    slot = schedule[cls][day][period]
+
+                    if slot and slot["teacher_id"] == teacher["id"]:
+                        total_periods += 1
+
+        if total_periods >= 25:
+            level = "มาก"
+        elif total_periods >= 15:
+            level = "ปานกลาง"
+        else:
+            level = "น้อย"
+
+        workload.append({
+            "ครู": teacher["name"],
+            "ประจำชั้น": teacher["homeroom"],
+            "วิชา": teacher["specialty"],
+            "จำนวนคาบ": total_periods,
+            "ภาระงาน": level,
+        })
+
+    return pd.DataFrame(workload)
 
 
 # =========================
@@ -489,13 +521,17 @@ if "schedule" in st.session_state:
                     slot = schedule[cls][day][period]
 
                     if slot:
-                        teacher_name = next(
-                            (
-                                teacher["name"]
-                                for teacher in DEFAULT_TEACHERS
-                                if teacher["id"] == slot["teacher_id"]
-                            ),
-                            "-",
+                        teacher_name = (
+                            "ครูทุกคน"
+                            if slot["teacher_id"] == 0
+                            else next(
+                                (
+                                    teacher["name"]
+                                    for teacher in DEFAULT_TEACHERS
+                                    if teacher["id"] == slot["teacher_id"]
+                                ),
+                                "-",
+                            )
                         )
 
                         row[day] = f"{slot['subject']} ({teacher_name})"
@@ -515,6 +551,32 @@ if "schedule" in st.session_state:
             file_name="timetable.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
+
+    st.markdown("---")
+    st.subheader("📊 สรุปภาระงานครู")
+
+    workload_df = calculate_teacher_workload(
+        schedule,
+        DEFAULT_TEACHERS,
+    )
+
+    st.dataframe(workload_df, use_container_width=True)
+
+    high_load = workload_df[
+        workload_df["ภาระงาน"] == "มาก"
+    ]
+
+    low_load = workload_df[
+        workload_df["ภาระงาน"] == "น้อย"
+    ]
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric("👨‍🏫 ภาระงานมาก", len(high_load))
+
+    with col2:
+        st.metric("📘 ภาระงานน้อย", len(low_load))
 
 st.markdown("---")
 
