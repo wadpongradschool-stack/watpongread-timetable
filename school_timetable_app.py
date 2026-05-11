@@ -204,15 +204,45 @@ def generate_timetable(classes, subjects, teachers, teacher_subjects):
         )
     )
 
+    for cls in classes:
+        # ล็อกคาบพิเศษ
+        wed_teacher = 1
+        fri_teacher = 6
+
+        # พุธคาบสุดท้าย = ลูกเสือ
+        schedule[cls]["พุธ"][6] = {
+            "subject": "ลูกเสือ เนตรนารี",
+            "teacher_id": wed_teacher,
+        }
+        teacher_busy[wed_teacher]["พุธ"][6] = True
+
+        # ศุกร์คาบสุดท้าย = สวดมนต์
+        schedule[cls]["ศุกร์"][6] = {
+            "subject": "สวดมนต์",
+            "teacher_id": fri_teacher,
+        }
+        teacher_busy[fri_teacher]["ศุกร์"][6] = True
+
     for task in tasks:
         cls = task["class"]
         subject = task["subject"]
         teacher_id = task["teacher_id"]
 
+        # ข้ามวิชาที่ล็อกไว้แล้ว
+        if subject["name"] in ["ลูกเสือ เนตรนารี", "สวดมนต์"]:
+            continue
+
         placed = False
 
         for day in DAYS:
             for period in PERIODS:
+
+                # ข้ามคาบล็อกพิเศษ
+                if (day == "พุธ" and period == 6) or (
+                    day == "ศุกร์" and period == 6
+                ):
+                    continue
+
                 if schedule[cls][day][period] is not None:
                     continue
 
@@ -311,12 +341,112 @@ st.set_page_config(
     page_title="ระบบจัดตารางเรียน",
     page_icon="🏫",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-st.title("🏫 ระบบจัดตารางเรียนอัตโนมัติ")
-st.caption("โรงเรียนวัดโป่งแรด")
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap');
 
-st.sidebar.header("⚙️ เมนู")
+html, body, [class*="css"] {
+    font-family: 'Sarabun', sans-serif;
+}
+
+.main-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
+    padding: 2rem;
+    border-radius: 22px;
+    color: white;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 30px rgba(37,99,235,0.25);
+}
+
+.main-header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 0.2rem;
+}
+
+.main-header p {
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+.metric-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.stButton>button {
+    width: 100%;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg,#2563eb,#1d4ed8);
+    color: white;
+    font-weight: 700;
+    padding: 0.65rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.stButton>button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(37,99,235,0.3);
+}
+
+.stTabs [data-baseweb="tab"] {
+    font-weight: 700;
+    border-radius: 10px;
+}
+
+.stDataFrame {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+section[data-testid="stSidebar"] {
+    background: #f8fafc;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class='main-header'>
+    <h1>🏫 ระบบจัดตารางเรียนอัตโนมัติ</h1>
+    <p>โรงเรียนวัดโป่งแรด • Smart School Timetable System</p>
+</div>
+""", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.markdown(f"""
+    <div class='metric-card'>
+        <h3>👩‍🏫 ครูทั้งหมด</h3>
+        <h1>{len(DEFAULT_TEACHERS)}</h1>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col2:
+    st.markdown(f"""
+    <div class='metric-card'>
+        <h3>📚 รายวิชา</h3>
+        <h1>{len(DEFAULT_SUBJECTS)}</h1>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col3:
+    st.markdown(f"""
+    <div class='metric-card'>
+        <h3>🏫 ระดับชั้น</h3>
+        <h1>{len(DEFAULT_CLASSES)}</h1>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.sidebar.markdown("## ⚙️ แผงควบคุม")
+st.sidebar.markdown("จัดการและสร้างตารางเรียนอัตโนมัติ")
 
 if st.sidebar.button("🚀 สร้างตารางเรียน"):
 
@@ -388,10 +518,11 @@ if "schedule" in st.session_state:
 
 st.markdown("---")
 
-st.subheader("👩‍🏫 รายชื่อครู")
+st.markdown("---")
+st.subheader("👩‍🏫 ข้อมูลครูผู้สอน")
 st.dataframe(pd.DataFrame(DEFAULT_TEACHERS), use_container_width=True)
 
-st.subheader("📚 รายวิชา")
+st.subheader("📚 ข้อมูลรายวิชา")
 st.dataframe(pd.DataFrame(DEFAULT_SUBJECTS), use_container_width=True)
 
 run_basic_tests()
