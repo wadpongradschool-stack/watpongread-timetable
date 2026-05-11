@@ -72,7 +72,7 @@ DEFAULT_TEACHERS = [
     {
         "id": 6,
         "name": "ครู ณิชนันทน์",
-        "specialty": "สอนทุกวิชา",
+        "specialty": "สอนทุกวิชาพื้นฐาน ป.1",
         "homeroom": "ป.1",
     },
     {
@@ -92,17 +92,17 @@ DEFAULT_SUBJECTS = [
     {"id": 4, "name": "สังคมศึกษาฯ", "periods": 2, "needs_focus": False},
     {"id": 5, "name": "ประวัติศาสตร์", "periods": 1, "needs_focus": False},
     {"id": 6, "name": "สุขศึกษา", "periods": 1, "needs_focus": False},
-    {"id": 7, "name": "ศิลปะ", "periods": 2, "needs_focus": False},
-    {"id": 8, "name": "การงานอาชีพ", "periods": 2, "needs_focus": False},
-    {"id": 9, "name": "อังกฤษ", "periods": 4, "needs_focus": True},
+    {"id": 7, "name": "ศิลปะ", "periods": 1, "needs_focus": False},
+    {"id": 8, "name": "การงานอาชีพ", "periods": 1, "needs_focus": False},
+    {"id": 9, "name": "อังกฤษ", "periods": 3, "needs_focus": True},
     {"id": 10, "name": "อังกฤษ(เพิ่มเติม)", "periods": 1, "needs_focus": True},
     {"id": 11, "name": "ป้องกันการทุจริต", "periods": 1, "needs_focus": False},
     {"id": 12, "name": "แนะแนว", "periods": 1, "needs_focus": False},
     {"id": 13, "name": "ลูกเสือ เนตรนารี", "periods": 1, "needs_focus": False},
     {"id": 14, "name": "ชุมนุม", "periods": 1, "needs_focus": False},
-    {"id": 15, "name": "พลศึกษา", "periods": 2, "needs_focus": False},
+    {"id": 15, "name": "พลศึกษา", "periods": 1, "needs_focus": False},
     {"id": 16, "name": "สวดมนต์", "periods": 1, "needs_focus": False},
-    {"id": 17, "name": "วิทยาการคำนวณ", "periods": 2, "needs_focus": True},
+    {"id": 17, "name": "วิทยาการคำนวณ", "periods": 1, "needs_focus": True},
     {"id": 18, "name": "ดนตรี", "periods": 1, "needs_focus": False},
 ]
 
@@ -139,7 +139,7 @@ MUSIC_SCHEDULE = {
     "อังคาร": [],
     "พุธ": ["ป.3", "ป.4"],
     "พฤหัสบดี": ["ป.5", "ป.6"],
-    "ศุกร์": ["กิจกรรมกลองยาว"],
+    "ศุกร์": ["นักเรียนที่ถูกคัดเลือก"],
 }
 
 MUSIC_PERIOD = 4  # 12:30 - 13:30
